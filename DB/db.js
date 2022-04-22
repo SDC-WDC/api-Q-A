@@ -11,9 +11,7 @@ const pool = new Pool({
 const fetchQandA = (product_id, cb) => {
   pool.query(`SELECT * FROM questions LEFT JOIN answers ON questions.id = answers.question_id LEFT JOIN photos ON answers.id = photos.answer_id WHERE questions.product_id = ${product_id}`)
     .then((results) => {
-      // cb(results.rows);
-      console.log(results.rows);
-      var output = {product_id: results.rows[0].product_id, results: []}
+      var output = {product_id: results.rows[0].product_id.toString(), results: []}
       var questionId = [];
       var answerId = [];
       var j = 0;
@@ -23,7 +21,7 @@ const fetchQandA = (product_id, cb) => {
           output.results.push({
             question_id: results.rows[i].question_id,
             question_body: results.rows[i].q_body,
-            question_date: results.rows[i].q_date_written,
+            question_date: new Date(parseInt(results.rows[i].q_date_written)),
             asker_name: results.rows[i].asker_name,
             question_helpfulness: results.rows[i].q_helpful,
             reported: results.rows[i].q_reported === 0 ? false : true,
@@ -32,7 +30,7 @@ const fetchQandA = (product_id, cb) => {
           output.results[j].answers[results.rows[i].aid] = {
             id: results.rows[i].aid,
             body: results.rows[i].body,
-            date: results.rows[i].date_written,
+            date: new Date(parseInt(results.rows[i].date_written)),
             answerer_name: results.rows[i].answerer_name,
             helpfulness: results.rows[i].helpful,
             photos: []
@@ -43,18 +41,18 @@ const fetchQandA = (product_id, cb) => {
           answerId.push(results.rows[i].aid);
           j++;
         } else {
+          let index = questionId.indexOf(results.rows[i].question_id);
           if (answerId.indexOf(results.rows[i].aid) === -1) {
-            let index = questionId.indexOf(results.rows[i].question_id);
             output.results[index].answers[results.rows[i].aid] = {
               id: results.rows[i].aid,
               body: results.rows[i].body,
-              date: results.rows[i].date_written,
+              date: new Date(parseInt(results.rows[i].date_written)),
               answerer_name: results.rows[i].answerer_name,
               helpfulness: results.rows[i].helpful,
               photos: []
             }
+            answerId.push(results.rows[i].aid);
             if (results.rows[i].url !== null) {
-              let index = questionId.indexOf(results.rows[i].question_id);
               output.results[index].answers[results.rows[i].aid].photos.push(results.rows[i].url);
             }
           }
@@ -66,8 +64,7 @@ const fetchQandA = (product_id, cb) => {
           }
         }
       }
-      console.log(output);
-      console.log(output.results[0].answers);
+      cb(output);
     })
     .catch((err) => console.log('fail to load', err))
 }

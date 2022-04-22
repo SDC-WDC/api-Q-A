@@ -63,11 +63,9 @@ app.get('/qa*', (req, res) => {
   let count = req.query.count === undefined ? 5 : req.query.count;
   let page = req.query.page === undefined ? 1 : req.query.page;
 
-  // console.log(product_id)
-  db.fetchQandA(5, (results) => {
-    res.send(results)
+  db.fetchQandA(product_id, (results) => {
+    res.json(results)
   });
-  res.send(qaData)
 })
 
 app.post('/qa/questions', (req, res) => {
