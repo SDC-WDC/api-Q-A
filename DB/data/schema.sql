@@ -1,12 +1,12 @@
 CREATE TABLE questions (
   id SERIAL PRIMARY KEY,
   product_id INT NOT NULL,
-  body TEXT NOT NULL,
-  date_written TEXT NOT NULL,
+  q_body TEXT NOT NULL,
+  q_date_written TEXT NOT NULL,
   asker_name TEXT NOT NULL,
   asker_email TEXT NOT NULL,
-  reported INT NOT NULL,
-  helpful INT NOT NULL
+  q_reported INT NOT NULL,
+  q_helpful INT NOT NULL
 );
 
 CREATE TABLE answers (

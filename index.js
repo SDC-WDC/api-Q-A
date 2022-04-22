@@ -70,9 +70,9 @@ app.get('/qa*', (req, res) => {
   product_id = product_id.slice(0, indexAfterId);
 
   // console.log(product_id)
-  // db.fetchQandA(product_id, (results) => {
-  //   res.send(results)
-  // });
+  db.fetchQandA(5, (results) => {
+    res.send(results)
+  });
   res.send(qaData)
 })
 
@@ -92,19 +92,35 @@ app.post('/qa/questions/*/answers', (req, res) => {
 })
 
 app.put('/qa/questions/*/helpful', (req, res) => {
-  console.log('helpful')
+  let question_id = parseInt(req.url.split('/')[3]);
+  db.helpfulQuestion(question_id, () => {
+    res.status(201).send('Thank you to vote for this question');
+  });
+  console.log('helpful question', question_id)
 })
 
 app.put('/qa/questions/*/report', (req, res) => {
-  console.log('report')
+  let question_id = parseInt(req.url.split('/')[3]);
+  db.reportQuestion(question_id, () => {
+    res.status(201).send('Reported');
+  });
+  console.log('report question', question_id)
 })
 
 app.put('/qa/answers/*/helpful', (req, res) => {
-  console.log('helpful')
+  let answer_id = parseInt(req.url.split('/')[3]);
+  db.helpfulAnswer(answer_id, () => {
+    res.status(201).send('Thank you to vote for this answer');
+  });
+  console.log('helpful answer', answer_id)
 })
 
 app.put('/qa/answers/*/report', (req, res) => {
-  console.log('report')
+  let answer_id = parseInt(req.url.split('/')[3]);
+  db.reportAnswer(answer_id, () => {
+    res.status(201).send('Reported');
+  });
+  console.log('report answer', answer_id)
 })
 
 

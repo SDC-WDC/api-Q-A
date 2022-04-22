@@ -9,14 +9,53 @@ const pool = new Pool({
 })
 
 const fetchQandA = (product_id, cb) => {
-  pool.query(`SELECT * FROM questions WHERE product_id = ${product_id}`)
+  pool.query(`SELECT * FROM questions INNER JOIN answers ON questions.id = answers.question_id WHERE questions.product_id = ${product_id}`)
     .then((results) => {
-      cb(results.rows);
+      // cb(results.rows);
+      var output = {product_id: results.rows[0].product_id, results: []}
+      var questionId = [];
+      var j = 0;
+      for (let i = 0; i < results.rows.length; i++) {
+        if (questionId.indexOf(results.rows[i].question_id) === -1) {
+          questionId.push(results.rows[i].question_id);
+          output.results.push({
+            question_id: results.rows[i].question_id,
+            question_body: results.rows[i].q_body,
+            question_date: results.rows[i].q_date_written,
+            asker_name: results.rows[i].asker_name,
+            question_helpfulness: results.rows[i].q_helpful,
+            reported: results.rows[i].q_reported === 0 ? false : true,
+            answers: {},
+          })
+          output.results[j].answers[results.rows[i].id] = {
+            id: results.rows[i].id,
+            body: results.rows[i].body,
+            date: results.rows[i].date_written,
+            answerer_name: results.rows[i].answerer_name,
+            helpfulness: results.rows[i].helpful,
+            photos: []
+          }
+          j++;
+        } else {
+          let index = questionId.indexOf(results.rows[i].question_id);
+          output.results[index].answers[results.rows[i].id] = {
+            id: results.rows[i].id,
+            body: results.rows[i].body,
+            date: results.rows[i].date_written,
+            answerer_name: results.rows[i].answerer_name,
+            helpfulness: results.rows[i].helpful,
+            photos: []
+          }
+        }
+      }
+      console.log(output);
+      console.log(output.results[0].answers);
     })
+    .catch((err) => console.log('fail to load', err))
 }
 
 const saveQuestion = (questionPost, cb) => {
-  pool.query('INSERT INTO questions (product_id, body, date_written, asker_name, asker_email, reported, helpful) VALUES ($1, $2, $3, $4, $5, $6, $7)', questionPost, (error, results) => {
+  pool.query('INSERT INTO questions (product_id, q_body, q_date_written, asker_name, asker_email, q_reported, q_helpful) VALUES ($1, $2, $3, $4, $5, $6, $7)', questionPost, (error, results) => {
     if (error) {
       throw error
     }
@@ -44,22 +83,42 @@ const saveAnswer = (answerPost, photo_url, cb) => {
   })
 }
 
-const helpfulQuestion = () => {
-
+const helpfulQuestion = (question_id, cb) => {
+  pool.query(`UPDATE questions SET q_helpful = q_helpful + 1 WHERE id = ${question_id}`)
+    .then(() => {
+      cb();
+    })
+    .catch((err) => console.log('fail to increment', err))
 }
 
-const helpfulAnswer = () => {
-
+const helpfulAnswer = (answer_id, cb) => {
+  pool.query(`UPDATE answers SET helpful = helpful + 1 WHERE id = ${answer_id}`)
+    .then(() => {
+      cb();
+    })
+    .catch((err) => console.log('fail to increment', err))
 }
 
-const reportQuestion = () => {
-
+const reportQuestion = (question_id, cb) => {
+  pool.query(`UPDATE questions SET q_reported = 1 WHERE id = ${question_id}`)
+    .then(() => {
+      cb();
+    })
+    .catch((err) => console.log('fail to update', err))
 }
 
-const reportAnswer = () => {
-
+const reportAnswer = (answer_id, cb) => {
+  pool.query(`UPDATE answers SET reported = 1 WHERE id = ${answer_id}`)
+    .then(() => {
+      cb();
+    })
+    .catch((err) => console.log('fail to update', err))
 }
 
 module.exports.fetchQandA = fetchQandA;
 module.exports.saveQuestion = saveQuestion;
 module.exports.saveAnswer = saveAnswer;
+module.exports.helpfulQuestion = helpfulQuestion;
+module.exports.helpfulAnswer = helpfulAnswer;
+module.exports.reportAnswer = reportAnswer;
+module.exports.reportQuestion = reportQuestion;
