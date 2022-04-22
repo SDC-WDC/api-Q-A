@@ -12,9 +12,10 @@ const fetchQandA = (product_id, cb) => {
   pool.query(`SELECT * FROM questions LEFT JOIN answers ON questions.id = answers.question_id LEFT JOIN photos ON answers.id = photos.answer_id WHERE questions.product_id = ${product_id}`)
     .then((results) => {
       // cb(results.rows);
-      // console.log(results.rows);
+      console.log(results.rows);
       var output = {product_id: results.rows[0].product_id, results: []}
       var questionId = [];
+      var answerId = [];
       var j = 0;
       for (let i = 0; i < results.rows.length; i++) {
         if (questionId.indexOf(results.rows[i].question_id) === -1) {
@@ -28,24 +29,40 @@ const fetchQandA = (product_id, cb) => {
             reported: results.rows[i].q_reported === 0 ? false : true,
             answers: {},
           })
-          output.results[j].answers[results.rows[i].id] = {
-            id: results.rows[i].id,
+          output.results[j].answers[results.rows[i].aid] = {
+            id: results.rows[i].aid,
             body: results.rows[i].body,
             date: results.rows[i].date_written,
             answerer_name: results.rows[i].answerer_name,
             helpfulness: results.rows[i].helpful,
             photos: []
           }
+          if (results.rows[i].url !== null) {
+            output.results[j].answers[results.rows[i].aid].photos.push(results.rows[i].url);
+          }
+          answerId.push(results.rows[i].aid);
           j++;
         } else {
-          let index = questionId.indexOf(results.rows[i].question_id);
-          output.results[index].answers[results.rows[i].id] = {
-            id: results.rows[i].id,
-            body: results.rows[i].body,
-            date: results.rows[i].date_written,
-            answerer_name: results.rows[i].answerer_name,
-            helpfulness: results.rows[i].helpful,
-            photos: []
+          if (answerId.indexOf(results.rows[i].aid) === -1) {
+            let index = questionId.indexOf(results.rows[i].question_id);
+            output.results[index].answers[results.rows[i].aid] = {
+              id: results.rows[i].aid,
+              body: results.rows[i].body,
+              date: results.rows[i].date_written,
+              answerer_name: results.rows[i].answerer_name,
+              helpfulness: results.rows[i].helpful,
+              photos: []
+            }
+            if (results.rows[i].url !== null) {
+              let index = questionId.indexOf(results.rows[i].question_id);
+              output.results[index].answers[results.rows[i].aid].photos.push(results.rows[i].url);
+            }
+          }
+          else {
+            let index = questionId.indexOf(results.rows[i].question_id);
+            if (results.rows[i].url !== null) {
+              output.results[index].answers[results.rows[i].aid].photos.push(results.rows[i].url);
+            }
           }
         }
       }
