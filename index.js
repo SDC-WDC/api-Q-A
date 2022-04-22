@@ -59,15 +59,9 @@ const qaData = {
 }
 
 app.get('/qa*', (req, res) => {
-  let product_id = req.originalUrl.split('product_id=')[1];
-  let indexAfterId;
-  for (let i = 0; i < product_id.length; i ++) {
-    if (product_id[i] === '&') {
-      indexAfterId = i;
-      break;
-    }
-  }
-  product_id = product_id.slice(0, indexAfterId);
+  let product_id = req.query.product_id;
+  let count = req.query.count === undefined ? 5 : req.query.count;
+  let page = req.query.page === undefined ? 1 : req.query.page;
 
   // console.log(product_id)
   db.fetchQandA(5, (results) => {
@@ -84,7 +78,7 @@ app.post('/qa/questions', (req, res) => {
 })
 
 app.post('/qa/questions/*/answers', (req, res) => {
-  let question_id = parseInt(req.url.split('/')[3]);
+  let question_id = req.params['0'];
   let answerPost = [question_id, req.body.body, new Date(), req.body.name, req.body.email, 0, 0];
   db.saveAnswer(answerPost, req.body.photos, () => {
     res.status(201).send('your answer post successful');
@@ -92,7 +86,7 @@ app.post('/qa/questions/*/answers', (req, res) => {
 })
 
 app.put('/qa/questions/*/helpful', (req, res) => {
-  let question_id = parseInt(req.url.split('/')[3]);
+  let question_id = req.params['0'];
   db.helpfulQuestion(question_id, () => {
     res.status(201).send('Thank you to vote for this question');
   });
@@ -100,7 +94,7 @@ app.put('/qa/questions/*/helpful', (req, res) => {
 })
 
 app.put('/qa/questions/*/report', (req, res) => {
-  let question_id = parseInt(req.url.split('/')[3]);
+  let question_id = req.params['0'];
   db.reportQuestion(question_id, () => {
     res.status(201).send('Reported');
   });
@@ -108,7 +102,7 @@ app.put('/qa/questions/*/report', (req, res) => {
 })
 
 app.put('/qa/answers/*/helpful', (req, res) => {
-  let answer_id = parseInt(req.url.split('/')[3]);
+  let answer_id = req.params['0'];
   db.helpfulAnswer(answer_id, () => {
     res.status(201).send('Thank you to vote for this answer');
   });
@@ -116,7 +110,7 @@ app.put('/qa/answers/*/helpful', (req, res) => {
 })
 
 app.put('/qa/answers/*/report', (req, res) => {
-  let answer_id = parseInt(req.url.split('/')[3]);
+  let answer_id = req.params['0'];
   db.reportAnswer(answer_id, () => {
     res.status(201).send('Reported');
   });

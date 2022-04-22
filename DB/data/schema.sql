@@ -20,6 +20,10 @@ CREATE TABLE answers (
   helpful INT NOT NULL
 );
 
+ALTER TABLE answers ADD COLUMN aId SERIAL;
+
+UPDATE answers SET aId = id;
+
 CREATE TABLE photos (
   id SERIAL PRIMARY KEY,
   answer_id INT NOT NULL REFERENCES answers(id),
