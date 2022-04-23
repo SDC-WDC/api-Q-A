@@ -16,10 +16,10 @@ const fetchQandA = (product_id, cb) => {
       var answerId = [];
       var j = 0;
       for (let i = 0; i < results.rows.length; i++) {
-        if (questionId.indexOf(results.rows[i].question_id) === -1) {
-          questionId.push(results.rows[i].question_id);
+        if (questionId.indexOf(results.rows[i].qid) === -1) {
+          questionId.push(results.rows[i].qid);
           output.results.push({
-            question_id: results.rows[i].question_id,
+            question_id: results.rows[i].qid,
             question_body: results.rows[i].q_body,
             question_date: new Date(parseInt(results.rows[i].q_date_written)),
             asker_name: results.rows[i].asker_name,
@@ -27,21 +27,23 @@ const fetchQandA = (product_id, cb) => {
             reported: results.rows[i].q_reported === 0 ? false : true,
             answers: {},
           })
-          output.results[j].answers[results.rows[i].aid] = {
-            id: results.rows[i].aid,
-            body: results.rows[i].body,
-            date: new Date(parseInt(results.rows[i].date_written)),
-            answerer_name: results.rows[i].answerer_name,
-            helpfulness: results.rows[i].helpful,
-            photos: []
-          }
-          if (results.rows[i].url !== null) {
-            output.results[j].answers[results.rows[i].aid].photos.push(results.rows[i].url);
-          }
-          answerId.push(results.rows[i].aid);
+           if (results.rows[i].aid !== null) {
+            output.results[j].answers[results.rows[i].aid] = {
+              id: results.rows[i].aid,
+              body: results.rows[i].body,
+              date: new Date(parseInt(results.rows[i].date_written)),
+              answerer_name: results.rows[i].answerer_name,
+              helpfulness: results.rows[i].helpful,
+              photos: []
+            }
+            if (results.rows[i].url !== null) {
+              output.results[j].answers[results.rows[i].aid].photos.push(results.rows[i].url);
+            }
+            answerId.push(results.rows[i].aid);
+           }
           j++;
         } else {
-          let index = questionId.indexOf(results.rows[i].question_id);
+          let index = questionId.indexOf(results.rows[i].qid);
           if (answerId.indexOf(results.rows[i].aid) === -1) {
             output.results[index].answers[results.rows[i].aid] = {
               id: results.rows[i].aid,
@@ -57,7 +59,7 @@ const fetchQandA = (product_id, cb) => {
             }
           }
           else {
-            let index = questionId.indexOf(results.rows[i].question_id);
+            let index = questionId.indexOf(results.rows[i].qid);
             if (results.rows[i].url !== null) {
               output.results[index].answers[results.rows[i].aid].photos.push(results.rows[i].url);
             }

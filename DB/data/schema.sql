@@ -9,6 +9,10 @@ CREATE TABLE questions (
   q_helpful INT NOT NULL
 );
 
+ALTER TABLE questions ADD COLUMN qId SERIAL;
+
+UPDATE questions SET qId = id;
+
 CREATE TABLE answers (
   id SERIAL PRIMARY KEY,
   question_id INT NOT NULL REFERENCES questions(id),

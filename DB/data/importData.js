@@ -73,6 +73,7 @@ const importData = async () => {
       await pool.query('SELECT id FROM questions WHERE id = (SELECT MAX (id)FROM questions);')
               .then((result) => {
                 pool.query(`ALTER SEQUENCE questions_id_seq RESTART WITH ${result.rows[0].id + 1}`)
+                pool.query(`ALTER SEQUENCE questions_qId_seq RESTART WITH ${result.rows[0].id + 1}`)
               })
               .catch((err) => {
                 pool.end();
