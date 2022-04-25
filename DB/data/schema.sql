@@ -1,13 +1,17 @@
 CREATE TABLE questions (
   id SERIAL PRIMARY KEY,
   product_id INT NOT NULL,
-  body TEXT NOT NULL,
-  date_written TEXT NOT NULL,
+  q_body TEXT NOT NULL,
+  q_date_written TEXT NOT NULL,
   asker_name TEXT NOT NULL,
   asker_email TEXT NOT NULL,
-  reported INT NOT NULL,
-  helpful INT NOT NULL
+  q_reported INT NOT NULL,
+  q_helpful INT NOT NULL
 );
+
+ALTER TABLE questions ADD COLUMN qId SERIAL;
+
+UPDATE questions SET qId = id;
 
 CREATE TABLE answers (
   id SERIAL PRIMARY KEY,
@@ -19,6 +23,10 @@ CREATE TABLE answers (
   reported INT NOT NULL,
   helpful INT NOT NULL
 );
+
+ALTER TABLE answers ADD COLUMN aId SERIAL;
+
+UPDATE answers SET aId = id;
 
 CREATE TABLE photos (
   id SERIAL PRIMARY KEY,

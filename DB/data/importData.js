@@ -1,4 +1,4 @@
-const { Client } = require('pg');
+const { Client, Pool } = require('pg');
 const fs = require('fs');
 const path = require('path');
 
@@ -6,8 +6,13 @@ const DB_NAME = 'questionsandanswers';
 
 // Drop database if exists and create new one
 const setupDatabase = () => {
-  const conString = 'postgres://kunchen@localhost:5432/postgres';
-  const client = new Client(conString);
+  const client = new Client({
+    user: 'kunchen',
+    host: 'localhost',
+    database: 'postgres',
+    password: '',
+    port: 5432,
+  });
 
   return new Promise(async (resolve, reject) => {
     try {
@@ -26,8 +31,13 @@ const setupDatabase = () => {
 }
 
 const createTables = async () => {
-  const conString = `postgres://kunchen@localhost:5432/${DB_NAME}`;
-  const client = new Client(conString);
+  const client = new Client({
+    user: 'kunchen',
+    host: 'localhost',
+    database: DB_NAME,
+    password: '',
+    port: 5432,
+  });
 
   return new Promise(async (resolve, reject) => {
     try {
@@ -46,36 +56,52 @@ const createTables = async () => {
 }
 
 const importData = async () => {
-  const conString = `postgres://kunchen@localhost:5432/${DB_NAME}`;
-  const client = new Client(conString);
-
+  const pool = new Pool({
+    user: 'kunchen',
+    host: 'localhost',
+    database: DB_NAME,
+    password: '',
+    port: 5432,
+  })
   return new Promise(async (resolve, reject) => {
     try {
-      client.connect();
-
       const importData = fs.readFileSync(path.resolve(__dirname, './loadData.sql')).toString();
       console.log('Importing data from CSV files...');
-      await client.query(importData);
+      await pool.query(importData);
+
       //set auto increment id start at the last index of import id + 1
-      await client.query('SELECT id FROM questions WHERE id = (SELECT MAX (id)FROM questions);')
+      await pool.query('SELECT id FROM questions WHERE id = (SELECT MAX (id)FROM questions);')
               .then((result) => {
-                client.query(`ALTER SEQUENCE questions_id_seq RESTART WITH ${result.rows[0].id + 1}`)
+                pool.query(`ALTER SEQUENCE questions_id_seq RESTART WITH ${result.rows[0].id + 1};`)
+                pool.query(`ALTER SEQUENCE questions_qId_seq RESTART WITH ${result.rows[0].id + 1};`)
+              })
+              .catch((err) => {
+                pool.end();
+                reject(err);
               });
-      await client.query('SELECT id FROM answers WHERE id = (SELECT MAX (id)FROM answers);')
+
+      await pool.query('SELECT id FROM answers WHERE id = (SELECT MAX (id)FROM answers);')
               .then((result) => {
-                client.query(`ALTER SEQUENCE answers_id_seq RESTART WITH ${result.rows[0].id + 1}`)
+                pool.query(`ALTER SEQUENCE answers_id_seq RESTART WITH ${result.rows[0].id + 1};`)
+                pool.query(`ALTER SEQUENCE answers_aId_seq RESTART WITH ${result.rows[0].id + 1};`)
+              })
+              .catch((err) => {
+                pool.end();
+                reject(err);
               });
-      await client.query('SELECT id FROM photos WHERE id = (SELECT MAX (id)FROM photos);')
-              .then((result) => {
-                client.query(`ALTER SEQUENCE photos_id_seq RESTART WITH ${result.rows[0].id + 1}`)
-              });
+
+      await pool.query(`SELECT setval('photos_id_seq', coalesce(max(id), 0) + 1, false) FROM photos;`)
+                .catch((err) => {
+                  pool.end();
+                  reject(err);
+                });
 
       console.log('Done!');
 
-      client.end();
+      pool.end();
       resolve();
     } catch (err) {
-      client.end();
+      pool.end();
       reject(err);
     }
   });
