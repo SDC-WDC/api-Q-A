@@ -9,10 +9,6 @@ CREATE TABLE questions (
   q_helpful INT NOT NULL
 );
 
-ALTER TABLE questions ADD COLUMN qId SERIAL;
-
-UPDATE questions SET qId = id;
-
 CREATE TABLE answers (
   id SERIAL PRIMARY KEY,
   question_id INT NOT NULL REFERENCES questions(id),
@@ -23,10 +19,6 @@ CREATE TABLE answers (
   reported INT NOT NULL,
   helpful INT NOT NULL
 );
-
-ALTER TABLE answers ADD COLUMN aId SERIAL;
-
-UPDATE answers SET aId = id;
 
 CREATE TABLE photos (
   id SERIAL PRIMARY KEY,

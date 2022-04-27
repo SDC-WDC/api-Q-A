@@ -1,11 +1,10 @@
 const { Pool } = require('pg');
 
 const pool = new Pool({
-  user: 'kunchen',
-  host: 'localhost',
+  user: 'postgres',
+  host: '50.18.22.164',
   database: 'questionsandanswers',
-  password: '',
-  port: 5432,
+  password: '123456',
 })
 
 const fetchQandA = (product_id, cb) => {

@@ -7,11 +7,10 @@ const DB_NAME = 'questionsandanswers';
 // Drop database if exists and create new one
 const setupDatabase = () => {
   const client = new Client({
-    user: 'kunchen',
-    host: 'localhost',
+    user: 'postgres',
+    host: '50.18.22.164',
     database: 'postgres',
-    password: '',
-    port: 5432,
+    password: '123456',
   });
 
   return new Promise(async (resolve, reject) => {
@@ -32,11 +31,10 @@ const setupDatabase = () => {
 
 const createTables = async () => {
   const client = new Client({
-    user: 'kunchen',
-    host: 'localhost',
+    user: 'postgres',
+    host: '50.18.22.164',
     database: DB_NAME,
-    password: '',
-    port: 5432,
+    password: '123456',
   });
 
   return new Promise(async (resolve, reject) => {
@@ -57,11 +55,10 @@ const createTables = async () => {
 
 const importData = async () => {
   const pool = new Pool({
-    user: 'kunchen',
-    host: 'localhost',
+    user: 'postgres',
+    host: '50.18.22.164',
     database: DB_NAME,
-    password: '',
-    port: 5432,
+    password: '123456',
   })
   return new Promise(async (resolve, reject) => {
     try {
