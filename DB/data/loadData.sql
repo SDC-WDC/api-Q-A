@@ -1,8 +1,8 @@
-\COPY questions FROM '/Users/kunchen/Documents/HackReactor/SDC2/api-Q-A/DB/data/questions.csv' DELIMITER ',' CSV HEADER
+COPY questions FROM '/Users/kunchen/Documents/HackReactor/SDC/api-Q-A/DB/data/questions.csv' DELIMITER ',' CSV HEADER;
 
-\COPY answers FROM '/Users/kunchen/Documents/HackReactor/SDC2/api-Q-A/DB/data/answers.csv' DELIMITER ',' CSV HEADER
+COPY answers FROM '/Users/kunchen/Documents/HackReactor/SDC/api-Q-A/DB/data/answers.csv' DELIMITER ',' CSV HEADER;
 
-\COPY photos FROM '/Users/kunchen/Documents/HackReactor/SDC2/api-Q-A/DB/data/answers_photos.csv' DELIMITER ',' CSV HEADER
+COPY photos FROM '/Users/kunchen/Documents/HackReactor/SDC/api-Q-A/DB/data/answers_photos.csv' DELIMITER ',' CSV HEADER;
 
 SELECT setval('questions_id_seq', coalesce(max(id), 0) + 1, false) FROM questions;
 
