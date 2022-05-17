@@ -5,11 +5,10 @@ const pool = new Pool({
   host: 'localhost',
   database: 'questionsandanswers',
   password: '',
-  port: 5432,
 })
 
 const fetchQandA = (product_id, cb) => {
-  pool.query(`SELECT * FROM questions LEFT JOIN answers ON questions.id = answers.question_id LEFT JOIN photos ON answers.id = photos.answer_id WHERE questions.product_id = ${product_id}`)
+  pool.query(`SELECT * FROM questions LEFT JOIN answers ON questions.id = answers.question_id LEFT JOIN photos ON answers.id = photos.answer_id WHERE questions.product_id = ${product_id} AND questions.q_reported = 0;`)
     .then((results) => {
       var output = {product_id: results.rows[0].product_id.toString(), results: []}
       var questionId = [];

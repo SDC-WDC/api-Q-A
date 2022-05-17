@@ -1,30 +1,22 @@
-COPY questions (
-  id,
-  product_id,
-  q_body,
-  q_date_written,
-  asker_name,
-  asker_email,
-  q_reported,
-  q_helpful
-) FROM '/Users/kunchen/Documents/HackReactor/SDC2/api-Q-A/DB/data/questions.csv' DELIMITER ',' CSV HEADER;
+COPY questions FROM '/Users/kunchen/Documents/HackReactor/SDC/api-Q-A/DB/data/questions.csv' DELIMITER ',' CSV HEADER;
 
-COPY answers (
-  id,
-  question_id,
-  body,
-  date_written,
-  answerer_name,
-  answerer_email,
-  reported,
-  helpful
-) FROM '/Users/kunchen/Documents/HackReactor/SDC2/api-Q-A/DB/data/answers.csv' DELIMITER ',' CSV HEADER;
+COPY answers FROM '/Users/kunchen/Documents/HackReactor/SDC/api-Q-A/DB/data/answers.csv' DELIMITER ',' CSV HEADER;
 
-COPY photos (
-  id,
-  answer_id,
-  url
-) FROM '/Users/kunchen/Documents/HackReactor/SDC2/api-Q-A/DB/data/answers_photos.csv' DELIMITER ',' CSV HEADER;
+COPY photos FROM '/Users/kunchen/Documents/HackReactor/SDC/api-Q-A/DB/data/answers_photos.csv' DELIMITER ',' CSV HEADER;
+
+SELECT setval('questions_id_seq', coalesce(max(id), 0) + 1, false) FROM questions;
+
+SELECT setval('answers_id_seq', coalesce(max(id), 0) + 1, false) FROM answers;
+
+SELECT setval('photos_id_seq', coalesce(max(id), 0) + 1, false) FROM photos;
+
+ALTER TABLE questions ADD COLUMN qId SERIAL;
+
+UPDATE questions SET qId = id;
+
+ALTER TABLE answers ADD COLUMN aId SERIAL;
+
+UPDATE answers SET aId = id;
 
 CREATE INDEX questions_id_index ON questions (id);
 
